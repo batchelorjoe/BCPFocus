@@ -36,6 +36,7 @@
         android:layout_alignBaseline="@+id/etNewItem"
         android:layout_alignBottom="@+id/etNewItem"
         android:layout_alignRight="@+id/lvItems"
+        android:onClick="addFocusItem"
         android:text="Add"/>
 
 
