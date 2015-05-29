@@ -10,6 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.foreverlifestyle.bcp4access.FlsConnection;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -31,6 +33,7 @@ public class FocusActivity extends ActionBarActivity {
     ArrayList<String> items;
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
+    FlsConnection flsConnection;
 
 
     @Override
@@ -39,12 +42,11 @@ public class FocusActivity extends ActionBarActivity {
         setContentView(R.layout.activity_focus);
         lvItems = (ListView) findViewById(R.id.lvItems);
         items = new ArrayList<String>();
+        flsConnection = new FlsConnection();
         readItems();
         itemsAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, items);
         lvItems.setAdapter(itemsAdapter);
-        items.add("First Item");
-        items.add("Second Item");
-        items.add("Third Item");
+
         setupListViewListener();
 
     }
@@ -71,38 +73,13 @@ public class FocusActivity extends ActionBarActivity {
             items = new ArrayList<String>();
             e.printStackTrace();
         }
-/*
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpContext localContext = new BasicHttpContext();
-        HttpGet httpGet = new HttpGet("http://www.foreverlifestyle.com/index_1.php?format=text&method=hello");
-        String text = null;
-        try {
-            HttpResponse response = httpClient.execute(httpGet, localContext);
-            HttpEntity entity = response.getEntity();
-            text = getASCIIContentFromEntity(entity);
-            items.add(text);
+        if (flsConnection.getConnectionStatus())  items.add("Connected");
 
-        } catch (Exception e) {
-            items.add("No Item");
-        }
 
-  */
     }
 
 
 
-     private String getASCIIContentFromEntity(HttpEntity entity) throws IllegalStateException, IOException {
-        InputStream in = entity.getContent();
-        StringBuffer out = new StringBuffer();
-        int n = 1;
-        while (n>0) {
-            byte[] b = new byte[4096];
-            n = in.read(b);
-            if (n>0) out.append(new String(b,0,n));
-
-        }
-        return out.toString();
-    }
 
 
     private void  saveItems() {
