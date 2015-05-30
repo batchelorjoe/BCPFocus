@@ -1,5 +1,6 @@
 package com.foreverlifestyle.bcpfocus;
 
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -21,10 +22,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -34,6 +40,7 @@ public class FocusActivity extends ActionBarActivity {
     ArrayAdapter<String> itemsAdapter;
     ListView lvItems;
     FlsConnection flsConnection;
+    String lastmsg;
 
 
     @Override
@@ -73,8 +80,8 @@ public class FocusActivity extends ActionBarActivity {
             items = new ArrayList<String>();
             e.printStackTrace();
         }
-        if (flsConnection.getConnectionStatus())  items.add("Connected");
-
+        new RetrieveUserKeyTask().execute("rlToRssFeed");
+       items.add("Something from feed");
 
     }
 
@@ -95,7 +102,7 @@ public class FocusActivity extends ActionBarActivity {
     public void addFocusItem(View view) {
         EditText etNewItem = (EditText) findViewById(R.id.etNewItem);
         itemsAdapter.add(etNewItem.getText().toString());
-        etNewItem.setText("");
+        etNewItem.setText(lastmsg);
         saveItems();
 
 
@@ -122,4 +129,51 @@ public class FocusActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
-}
+
+    // Create an internal class for AsycTask
+    class RetrieveUserKeyTask extends AsyncTask<String, Void, String> {
+
+        private Exception exception;
+
+        protected String doInBackground(String... urls) {
+
+                //URL url= new URL(urls[0]);
+                HttpURLConnection urlConnection;
+
+                try {
+                    URL url = new URL("http://www.foreverlifestyle.com/index_1.php?format=text&method=hello");
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    urlConnection.disconnect();
+                    lastmsg = readStream(in);
+                    return lastmsg;
+                } catch (MalformedURLException bad_url) {
+                    return "Bad URL";
+                } catch (IOException bad_io) {
+                    return "Bad Connection";
+                }
+            }
+        }
+
+        protected void onPostExecute(String feed) {
+            // TODO: check this.exception
+            // TODO: do something with the feed
+        }
+
+        protected String readStream(InputStream is) {
+
+            try {
+                ByteArrayOutputStream bo = new ByteArrayOutputStream();
+                int i = is.read();
+                while(i != -1) {
+                    bo.write(i);
+                    i = is.read();
+                }
+                return bo.toString();
+            } catch (IOException e) {
+                return "";
+            }
+        }
+
+    }
+
