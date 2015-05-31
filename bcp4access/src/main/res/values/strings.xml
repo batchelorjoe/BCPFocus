@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">bcp4access</string>
+    <string name="title_activity_uidtoast">UIDToastActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 </resources>
